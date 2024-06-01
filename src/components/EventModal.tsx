@@ -79,7 +79,13 @@ export default function EventModal({
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor={`${formId}-name`}>Name</label>
-          <input ref={nameRef} type="text" name="name" id={`${formId}-name`} />
+          <input
+            defaultValue={event?.name}
+            ref={nameRef}
+            type="text"
+            name="name"
+            id={`${formId}-name`}
+          />
         </div>
         <div className="form-group checkbox">
           <input
@@ -108,6 +114,7 @@ export default function EventModal({
             <label htmlFor={`${formId}-end-time`}>End Time</label>
             <input
               ref={endTimeRef}
+              defaultValue={event?.endTime}
               min={startTime}
               required={!isAlldayChecked}
               disabled={isAlldayChecked}
