@@ -1,4 +1,4 @@
-import { Fragment, useId, useState } from "react";
+import { FormEvent, Fragment, useId, useRef, useState } from "react";
 import { Event } from "../context/events";
 import { UnionOmit } from "../utils.js/types";
 import { formatDate } from "../utils.js/utils";
@@ -31,6 +31,41 @@ export default function EventModal({
   const isNew = event === undefined;
   const [isAlldayChecked, setAlldayChecked] = useState(event?.allDays || false);
   const [startTime, setStartTime] = useState(event?.startTime || "");
+  const endTimeRef = useRef<HTMLInputElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+
+    const name = nameRef.current?.value;
+    const endTime = endTimeRef.current?.value;
+
+    if (name === "" || name == null) return;
+
+    const commonProps = {
+      name,
+      date: date || event?.date,
+      color: selectedColor,
+    };
+
+    let newEvent: UnionOmit<Event, "id">;
+
+    if (isAlldayChecked) {
+      newEvent = { ...commonProps, allDays: true };
+    } else {
+      if (
+        startTime == null ||
+        startTime === "" ||
+        endTime == null ||
+        endTime === ""
+      ) {
+        return;
+      }
+      newEvent = { ...commonProps, allDays: false, startTime, endTime };
+    }
+    modalProps.onClose();
+    onSubmit(newEvent);
+  }
 
   return (
     <Modal {...modalProps}>
@@ -41,10 +76,10 @@ export default function EventModal({
           &times;
         </button>
       </div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor={`${formId}-name`}>Name</label>
-          <input type="text" name="name" id={`${formId}-name`} />
+          <input ref={nameRef} type="text" name="name" id={`${formId}-name`} />
         </div>
         <div className="form-group checkbox">
           <input
@@ -72,6 +107,7 @@ export default function EventModal({
           <div className="form-group">
             <label htmlFor={`${formId}-end-time`}>End Time</label>
             <input
+              ref={endTimeRef}
               min={startTime}
               required={!isAlldayChecked}
               disabled={isAlldayChecked}

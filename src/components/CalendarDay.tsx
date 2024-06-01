@@ -2,22 +2,42 @@ import { endOfDay, isBefore, isSameMonth, isToday } from "date-fns";
 import { cc } from "../utils.js/cc";
 import { formatDate } from "../utils.js/utils";
 import { useEvents } from "../context/useEvents";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import EventModal from "./EventModal";
+import { Event } from "../context/events";
+import CalendarEvents from "./CalendarEvents";
 
 export type CalendarDayProps = {
   day: Date;
   showWeekName: boolean;
   selectedMonth: Date;
+  events: Event[];
 };
 
 export default function CalendarDay({
   day,
   showWeekName,
   selectedMonth,
+  events,
 }: CalendarDayProps) {
   const [isNewEventModalOpen, setNewEventModalOpen] = useState(false);
   const { addEvent } = useEvents();
+
+  const sortedEvents = useMemo(() => {
+    const timeToNumber = (time: string) => parseFloat(time.replace(":", "."));
+
+    return [...events].sort((a, b) => {
+      if (a.allDays && b.allDays) {
+        return 0;
+      } else if (a.allDays) {
+        return -1;
+      } else if (b.allDays) {
+        return 1;
+      } else {
+        return timeToNumber(a.startTime) - timeToNumber(b.startTime);
+      }
+    });
+  }, [events]);
 
   return (
     <div
@@ -43,20 +63,13 @@ export default function CalendarDay({
           +
         </button>
       </div>
-      {/* <div className="events">
-        <button className="all-day-event blue event">
-          <div className="event-name">Short</div>
-        </button>
-        <button className="all-day-event green event">
-          <div className="event-name">
-            Long Event Name That Just Keeps Going
-          </div>
-        </button>
-        <button className="event">
-          <div className="color-dot blue"></div>
-          <div className="event-time">7am</div>
-        </button>
-      </div> */}
+      {sortedEvents.length > 0 && (
+        <div className="events">
+          {sortedEvents.map((event) => (
+            <CalendarEvents key={event.id} event={event} />
+          ))}
+        </div>
+      )}
       <EventModal
         date={day}
         isOpen={isNewEventModalOpen}

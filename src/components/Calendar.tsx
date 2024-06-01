@@ -3,6 +3,7 @@ import {
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
+  isSameDay,
   startOfMonth,
   startOfWeek,
   subMonths,
@@ -10,6 +11,7 @@ import {
 import { useMemo, useState } from "react";
 import CalendarDay from "./CalendarDay";
 import { formatDate } from "../utils.js/utils";
+import { useEvents } from "../context/useEvents";
 
 export default function Calendar() {
   const [selectedMonth, setSelectedMont] = useState(new Date());
@@ -22,6 +24,8 @@ export default function Calendar() {
       end: lastWeekEnd,
     });
   }, [selectedMonth]);
+
+  const { events } = useEvents();
 
   return (
     <div className="calendar">
@@ -50,6 +54,7 @@ export default function Calendar() {
       <div className="days">
         {calendarDays.map((day, i) => (
           <CalendarDay
+            events={events.filter((event) => isSameDay(day, event.date))}
             key={day.getTime()}
             day={day}
             showWeekName={i < 7}
