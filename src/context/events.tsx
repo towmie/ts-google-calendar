@@ -2,7 +2,7 @@ import { ReactNode, createContext, useState } from "react";
 import { UnionOmit } from "../utils.js/types";
 import { EVENTS_COLOR } from "./useEvents";
 
-type Event = {
+export type Event = {
   id: string;
   name: string;
   color: (typeof EVENTS_COLOR)[number];
@@ -12,12 +12,12 @@ type Event = {
   | { allDays: true; startTime?: never; endTime?: never }
 );
 
-type EventsContext = {
+export type EventsContext = {
   events: Event[];
   addEvent: (event: UnionOmit<Event, "id">) => void;
 };
 
-type EventProviderProps = {
+export type EventProviderProps = {
   children: ReactNode;
 };
 
